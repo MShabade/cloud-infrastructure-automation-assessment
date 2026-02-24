@@ -1,25 +1,44 @@
-- hosts: all
-  become: true
-
+- hosts: app_servers
+  become: yes
   tasks:
-
-    - name: Update apt packages
+    - name: Update apt cache
       apt:
         update_cache: yes
 
-    - name: Install Docker
+    - name: Install required packages
       apt:
-        name: docker.io
+        name: "{{ item }}"
+        state: present
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+
+    - name: Add Docker GPG key
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      args:
+        warn: false
+
+    - name: Add Docker repo
+      apt_repository:
+        repo: deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu focal stable
         state: present
 
-    - name: Start Docker
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+
+    - name: Start and enable Docker
       service:
         name: docker
         state: started
-        enabled: true
+        enabled: yes
 
-    - name: Pull Docker image
-      command: docker pull nginx
-
-    - name: Run container
-      command: docker run -d -p 80:80 nginx
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
