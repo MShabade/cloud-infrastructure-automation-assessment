@@ -2,7 +2,12 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Get latest Ubuntu 22.04 AMI dynamically from Canonical
+# Get default VPC
+data "aws_vpc" "default" {
+  default = true
+}
+
+# Latest Ubuntu 22.04 AMI
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"]
@@ -18,8 +23,11 @@ data "aws_ami" "ubuntu" {
   }
 }
 
+# Security Group
 resource "aws_security_group" "devops_sg" {
-  name = "devops_sg"
+  name_prefix = "devops-sg-"
+  description = "Allow SSH and HTTP"
+  vpc_id      = data.aws_vpc.default.id
 
   ingress {
     from_port   = 22
@@ -43,23 +51,14 @@ resource "aws_security_group" "devops_sg" {
   }
 }
 
-resource "aws_instance" "devops_instance" {
+# New EC2 Instance
+resource "aws_instance" "app_server" {
   ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t2.micro"
-  key_name               = "devops-automation"
+  instance_type          = var.instance_type
+  key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.devops_sg.id]
 
   tags = {
-    Name = "DevOps-Automation-Server"
+    Name = "App-Server"
   }
-}
-
-# Automatically generate Ansible inventory file
-resource "local_file" "ansible_inventory" {
-  content = <<EOF
-[web]
-${aws_instance.devops_instance.public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=~/devops-automation.pem
-EOF
-
-  filename = "../ansible/inventory.ini"
 }
