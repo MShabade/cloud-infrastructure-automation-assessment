@@ -2,67 +2,32 @@
   <div class="card">
     <h1>Infra-Automation</h1>
 
-    <p>
-      Deployed via 
-      <span class="highlight">Terraform → EC2 → Ansible → GitHub Actions</span>
-    </p>
+    <div style="margin-top: 30px; font-size: 1.15em; line-height: 1.8;">
 
-    <p>By <span class="highlight">Mahendra Shabade</span></p>
-
-    <button id="deployBtn" onclick="runPipeline()">Run Pipeline</button>
-
-    <div style="margin-top:20px;">
-      <div id="progressContainer" style="display:none; background:#eee; border-radius:8px; overflow:hidden;">
-        <div id="progressBar" style="height:10px; width:0%; background:#2575fc; transition: width 0.4s;"></div>
+      <div>
+        🏗️ <strong>Infrastructure Provisioning</strong><br>
+        <span class="highlight">Terraform → EC2</span>
       </div>
+
+      <div style="font-size: 1.5em; margin: 10px 0;">⬇</div>
+
+      <div>
+        ⚙️ <strong>Configuration Management</strong><br>
+        <span class="highlight">Ansible → Docker Setup</span>
+      </div>
+
+      <div style="font-size: 1.5em; margin: 10px 0;">⬇</div>
+
+      <div>
+        🚀 <strong>Application Deployment</strong><br>
+        <span class="highlight">CI/CD → Automated Build & Deploy</span>
+      </div>
+
     </div>
 
-    <div id="status" style="margin-top:15px; font-weight:bold;"></div>
-
-    <footer style="margin-top:20px;"> Your DevOps Pipeline is live </footer>
+    <footer style="margin-top: 40px; font-size: 1em;">
+      Developed by <span class="highlight">Mahendra Shabade</span>
+    </footer>
   </div>
-
-  <script>
-    function runPipeline() {
-      const btn = document.getElementById("deployBtn");
-      const status = document.getElementById("status");
-      const progressBar = document.getElementById("progressBar");
-      const progressContainer = document.getElementById("progressContainer");
-
-      btn.disabled = true;
-      btn.innerText = "Running...";
-      progressContainer.style.display = "block";
-      progressBar.style.width = "0%";
-      status.innerHTML = "🚀 Initializing Terraform...";
-
-      let progress = 0;
-
-      const steps = [
-        "🔧 Provisioning EC2 via Terraform...",
-        "⚙️ Configuring Server with Ansible...",
-        "📦 Building Docker Image...",
-        "🚀 Deploying via GitHub Actions...",
-        "✅ Deployment Successful!"
-      ];
-
-      let stepIndex = 0;
-
-      const interval = setInterval(() => {
-        progress += 20;
-        progressBar.style.width = progress + "%";
-
-        if (stepIndex < steps.length) {
-          status.innerHTML = steps[stepIndex];
-          stepIndex++;
-        }
-
-        if (progress >= 100) {
-          clearInterval(interval);
-          btn.disabled = false;
-          btn.innerText = "Run Again";
-        }
-      }, 1000);
-    }
-  </script>
 </body>
 </html>
