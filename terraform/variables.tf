@@ -1,11 +1,9 @@
 variable "aws_region" {
-  default = "eu-west-1"
+  description = "AWS region"
+  default     = "eu-west-1"
 }
 
 variable "instance_type" {
-  default = "t2.micro"
-}
-
-variable "key_name" {
-  default = "devops-automation"
+  description = "EC2 instance type"
+  default     = "t2.micro"
 }

@@ -2,15 +2,10 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Get default VPC
-data "aws_vpc" "default" {
-  default = true
-}
-
-# Latest Ubuntu 22.04 AMI
+# Get latest Ubuntu 22.04 AMI dynamically
 data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["099720109477"]
+  owners      = ["099720109477"] # Canonical
 
   filter {
     name   = "name"
@@ -25,9 +20,7 @@ data "aws_ami" "ubuntu" {
 
 # Security Group
 resource "aws_security_group" "devops_sg" {
-  name_prefix = "devops-sg-"
-  description = "Allow SSH and HTTP"
-  vpc_id      = data.aws_vpc.default.id
+  name = "devops_sg"
 
   ingress {
     from_port   = 22
@@ -51,14 +44,32 @@ resource "aws_security_group" "devops_sg" {
   }
 }
 
-# New EC2 Instance
-resource "aws_instance" "app_server" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = var.instance_type
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.devops_sg.id]
+# Generate new SSH key pair
+resource "tls_private_key" "devops_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "devops_key" {
+  key_name   = "devops-tf-key"
+  public_key = tls_private_key.devops_key.public_key_openssh
+}
+
+# Save private key locally for Ansible
+resource "local_file" "devops_private_key" {
+  content         = tls_private_key.devops_key.private_key_pem
+  filename        = "${path.module}/devops-tf-key.pem"
+  file_permission = "0400"
+}
+
+# EC2 Instance
+resource "aws_instance" "devops_server" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = var.instance_type
+  key_name      = aws_key_pair.devops_key.key_name
+  security_groups = [aws_security_group.devops_sg.name]
 
   tags = {
-    Name = "App-Server"
+    Name = "devops-server"
   }
 }
