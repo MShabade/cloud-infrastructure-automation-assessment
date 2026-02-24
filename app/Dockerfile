@@ -1,8 +1,11 @@
-# Use the lightweight Nginx Alpine image
+# Use lightweight Nginx image
 FROM nginx:alpine
 
-# Copy your index.html into the Nginx web directory
+# Copy your app files
 COPY index.html /usr/share/nginx/html/index.html
 
-# Expose port 80
+# Expose HTTP port
 EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
