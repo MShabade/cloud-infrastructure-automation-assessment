@@ -45,7 +45,7 @@ cloud-infrastructure-automation-assessment/
 │
 ├── ansible/
 │   ├── inventory.ini
-│   └── install_docker.yml
+│   └── playbook.yml
 │
 ├── app/
 │   ├── index.html
