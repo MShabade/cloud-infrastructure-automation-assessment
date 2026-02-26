@@ -85,7 +85,7 @@ terraform apply
 
 ```bash
 cd ../ansible
-ansible-playbook -i inventory.ini install_docker.yml
+ansible-playbook -i inventory.ini playbook.yml
 ```
 
 ---
